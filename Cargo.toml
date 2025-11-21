@@ -5,6 +5,10 @@ edition = "2021"
 license = "MIT"
 description = "Route links to different browsers by client and host for Hyprland"
 repository = "https://github.com/filipechagas/hyprchoosy"
+authors = ["Filipe Chagas"]
+keywords = ["hyprland", "browser", "url", "launcher"]
+categories = ["command-line-utilities"]
+readme = "README.md"
 
 [dependencies]
 serde = { version = "1.0", features = ["derive"] }
@@ -20,3 +24,11 @@ lto = true
 codegen-units = 1
 opt-level = "z"
 strip = true
+
+[package.metadata.deb]
+maintainer = "Filipe Chagas"
+section = "utils"
+priority = "optional"
+assets = [
+    ["target/release/hyprchoosy", "usr/bin/", "755"],
+]
