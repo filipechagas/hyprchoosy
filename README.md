@@ -24,36 +24,36 @@ After switching to [Omarchy](https://omarchy.org/), I needed a [Choosy](https://
 
 ## 📦 Installation
 
-### From Binary Release
+### Binary Releases
 
 Download the latest release for your architecture from [GitHub Releases](https://github.com/filipechagas/hyprchoosy/releases):
 
+**x86_64 (Intel/AMD) - Standard:**
 ```bash
-# x86_64 (standard)
 wget https://github.com/filipechagas/hyprchoosy/releases/latest/download/hyprchoosy-amd64.tar.gz
 tar xzf hyprchoosy-amd64.tar.gz
 sudo mv hyprchoosy /usr/local/bin/
 ```
 
-### Debian/Ubuntu (DEB)
-
+**x86_64 (Intel/AMD) - Static (musl):**
 ```bash
-wget https://github.com/filipechagas/hyprchoosy/releases/latest/download/hyprchoosy_0.1.0_amd64.deb
-sudo dpkg -i hyprchoosy_0.1.0_amd64.deb
+wget https://github.com/filipechagas/hyprchoosy/releases/latest/download/hyprchoosy-amd64-musl.tar.gz
+tar xzf hyprchoosy-amd64-musl.tar.gz
+sudo mv hyprchoosy /usr/local/bin/
 ```
 
-### Fedora/RHEL (RPM)
-
+**ARM64 - Standard:**
 ```bash
-wget https://github.com/filipechagas/hyprchoosy/releases/latest/download/hyprchoosy-0.1.0-1.x86_64.rpm
-sudo rpm -i hyprchoosy-0.1.0-1.x86_64.rpm
+wget https://github.com/filipechagas/hyprchoosy/releases/latest/download/hyprchoosy-arm64.tar.gz
+tar xzf hyprchoosy-arm64.tar.gz
+sudo mv hyprchoosy /usr/local/bin/
 ```
 
-### Arch Linux
-
+**ARM64 - Static (musl):**
 ```bash
-wget https://github.com/filipechagas/hyprchoosy/releases/latest/download/hyprchoosy-0.1.0-1-x86_64.pkg.tar.zst
-sudo pacman -U hyprchoosy-0.1.0-1-x86_64.pkg.tar.zst
+wget https://github.com/filipechagas/hyprchoosy/releases/latest/download/hyprchoosy-arm64-musl.tar.gz
+tar xzf hyprchoosy-arm64-musl.tar.gz
+sudo mv hyprchoosy /usr/local/bin/
 ```
 
 ### From Source
