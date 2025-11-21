@@ -241,7 +241,7 @@ Contributions are welcome! Please follow [Conventional Commits](https://www.conv
 ### Release process
 
 1. Commit changes using conventional commits
-2. Push to `main` branch
+2. Push to `master` branch
 3. Release Please creates a release PR automatically
 4. Merge the PR to create a new release
 5. GitHub Actions builds and publishes artifacts
