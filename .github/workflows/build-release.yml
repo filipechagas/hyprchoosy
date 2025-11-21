@@ -61,14 +61,6 @@ jobs:
       - name: Build release binary
         run: cross build --release --target ${{ matrix.target }}
 
-      - name: Strip binary
-        run: |
-          if [[ "${{ matrix.target }}" == *"musl"* ]]; then
-            strip target/${{ matrix.target }}/release/hyprchoosy || true
-          else
-            strip target/${{ matrix.target }}/release/hyprchoosy
-          fi
-
       - name: Create archive
         run: |
           cd target/${{ matrix.target }}/release

@@ -1,0 +1,629 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>hyprchoosy — Smart Browser Router for Hyprland</title>
+    <meta
+      name="description"
+      content="Route URLs to different browsers based on the originating application or URL hostname for Hyprland"
+    />
+
+    <meta property="og:title" content="hyprchoosy" />
+    <meta
+      property="og:description"
+      content="Smart Browser Router for Hyprland"
+    />
+    <meta property="og:type" content="website" />
+
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
+      :root {
+        --bg-dark: #2b2d3a;
+        --text-light: #e8eaf0;
+        --text-blue: #9db4ff;
+        --accent-green: #b8d96e;
+        --button-blue: #7b9cff;
+        --button-hover: #6585e6;
+        --notification-bg: #9db4ff;
+        --notification-text: #2b2d3a;
+      }
+
+      body {
+        font-family:
+          -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+          "Helvetica Neue", Arial, sans-serif;
+        background: var(--bg-dark);
+        color: var(--text-light);
+        line-height: 1.6;
+      }
+
+      .container {
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 0 2rem;
+      }
+
+      /* Notification Bar */
+      .notification {
+        background: var(--notification-bg);
+        color: var(--notification-text);
+        text-align: center;
+        padding: 0.75rem;
+        font-weight: 500;
+      }
+
+      .notification a {
+        color: var(--notification-text);
+        text-decoration: underline;
+      }
+
+      /* ASCII Logo */
+      .logo {
+        padding: 3rem 0 2rem;
+        text-align: center;
+      }
+
+      .logo a {
+        color: var(--accent-green);
+        text-decoration: none;
+      }
+
+      .logo pre {
+        font-family: monospace;
+        font-size: clamp(0.4rem, 1.3vw, 0.85rem);
+        line-height: 1.1;
+        overflow-x: auto;
+        white-space: pre;
+        color: var(--accent-green);
+        font-weight: bold;
+      }
+
+      /* Header */
+      header {
+        text-align: center;
+        padding: 0 0 2rem;
+      }
+
+      h1 {
+        font-size: 1.4rem;
+        font-weight: 400;
+        color: var(--text-blue);
+        letter-spacing: 0.02em;
+      }
+
+      h1 a {
+        color: var(--text-blue);
+        text-decoration: underline;
+      }
+
+      h1 a:hover {
+        color: var(--accent-green);
+      }
+
+      /* Navigation */
+      nav {
+        padding: 2rem 0 3rem;
+      }
+
+      .nav-buttons {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 1rem;
+        justify-content: center;
+      }
+
+      .button {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        padding: 0.75rem 1.5rem;
+        background: var(--button-blue);
+        color: var(--bg-dark);
+        text-decoration: none;
+        font-weight: 600;
+        font-size: 0.9rem;
+        border-radius: 4px;
+        transition: all 0.2s ease;
+        text-transform: uppercase;
+        letter-spacing: 0.03em;
+      }
+
+      .button:hover {
+        background: var(--button-hover);
+        transform: translateY(-2px);
+      }
+
+      .button svg {
+        width: 18px;
+        height: 18px;
+      }
+
+      /* Main Content */
+      main {
+        padding: 2rem 0 3rem;
+      }
+
+      section {
+        margin-bottom: 4rem;
+      }
+
+      h2 {
+        font-size: 2rem;
+        font-weight: 600;
+        margin-bottom: 1.5rem;
+        color: var(--accent-green);
+      }
+
+      h3 {
+        font-size: 1.4rem;
+        font-weight: 600;
+        margin: 2rem 0 1rem;
+        color: var(--text-blue);
+      }
+
+      p {
+        margin-bottom: 1rem;
+        color: var(--text-light);
+      }
+
+      .lead {
+        font-size: 1.15rem;
+        line-height: 1.8;
+        margin-bottom: 1.5rem;
+        color: var(--text-light);
+      }
+
+      .motivation {
+        background: rgba(155, 180, 255, 0.1);
+        border-left: 4px solid var(--accent-green);
+        padding: 1.5rem;
+        margin: 2rem 0;
+        font-style: italic;
+        color: var(--text-blue);
+      }
+
+      .motivation a {
+        color: var(--accent-green);
+        font-weight: 600;
+        text-decoration: underline;
+      }
+
+      .motivation a:hover {
+        color: var(--button-blue);
+      }
+
+      /* Features Grid */
+      .features {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+        gap: 1.5rem;
+        margin-top: 2rem;
+      }
+
+      .feature {
+        background: rgba(155, 180, 255, 0.08);
+        border: 1px solid rgba(155, 180, 255, 0.2);
+        padding: 1.5rem;
+        border-radius: 4px;
+      }
+
+      .feature strong {
+        display: block;
+        font-size: 1.1rem;
+        margin-bottom: 0.5rem;
+        color: var(--accent-green);
+      }
+
+      .feature p {
+        color: var(--text-light);
+        margin: 0;
+      }
+
+      /* Installation Cards */
+      .install-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+        gap: 1.5rem;
+        margin-top: 2rem;
+      }
+
+      .install-card {
+        background: rgba(155, 180, 255, 0.08);
+        border: 1px solid rgba(155, 180, 255, 0.2);
+        padding: 1.5rem;
+        border-radius: 4px;
+      }
+
+      .install-card h3 {
+        margin-top: 0;
+        font-size: 1.1rem;
+        color: var(--accent-green);
+      }
+
+      /* Code Blocks */
+      pre {
+        background: rgba(0, 0, 0, 0.3);
+        color: var(--accent-green);
+        padding: 1.5rem;
+        overflow-x: auto;
+        margin: 1rem 0;
+        border: 1px solid rgba(155, 180, 255, 0.2);
+        border-radius: 4px;
+        font-family: "Consolas", "Monaco", "Courier New", monospace;
+        font-size: 0.9rem;
+        line-height: 1.6;
+      }
+
+      code {
+        font-family: "Consolas", "Monaco", "Courier New", monospace;
+        background: rgba(155, 180, 255, 0.1);
+        color: var(--accent-green);
+        padding: 0.2rem 0.4rem;
+        font-size: 0.9em;
+        border-radius: 2px;
+      }
+
+      pre code {
+        background: transparent;
+        padding: 0;
+      }
+
+      .command {
+        background: rgba(0, 0, 0, 0.3);
+        color: var(--accent-green);
+        padding: 0.75rem 1rem;
+        display: block;
+        margin: 0.5rem 0;
+        font-family: "Consolas", "Monaco", monospace;
+        font-size: 0.85rem;
+        overflow-x: auto;
+        white-space: pre;
+        border: 1px solid rgba(155, 180, 255, 0.2);
+        border-radius: 4px;
+      }
+
+      /* How it Works */
+      .steps {
+        margin: 1.5rem 0;
+      }
+
+      .steps ol {
+        margin-left: 2rem;
+        color: var(--text-light);
+      }
+
+      .steps li {
+        margin-bottom: 0.75rem;
+      }
+
+      .steps strong {
+        color: var(--accent-green);
+      }
+
+      ul {
+        margin-left: 2rem;
+        color: var(--text-light);
+      }
+
+      ul li {
+        margin-bottom: 0.5rem;
+      }
+
+      ul strong {
+        color: var(--accent-green);
+      }
+
+      /* Footer */
+      footer {
+        border-top: 1px solid rgba(155, 180, 255, 0.2);
+        padding: 3rem 0;
+        text-align: center;
+        margin-top: 4rem;
+      }
+
+      footer p {
+        margin-bottom: 1rem;
+        color: var(--text-blue);
+      }
+
+      footer a {
+        color: var(--text-blue);
+        font-weight: 600;
+        text-decoration: none;
+      }
+
+      footer a:hover {
+        color: var(--accent-green);
+        text-decoration: underline;
+      }
+
+      .footer-links {
+        margin-top: 1rem;
+      }
+
+      .footer-links a {
+        margin: 0 0.75rem;
+      }
+
+      /* Responsive */
+      @media (max-width: 768px) {
+        .logo pre {
+          font-size: 0.35rem;
+        }
+
+        h1 {
+          font-size: 1.2rem;
+        }
+
+        h2 {
+          font-size: 1.5rem;
+        }
+
+        .nav-buttons {
+          flex-direction: column;
+        }
+
+        .button {
+          justify-content: center;
+        }
+
+        .features,
+        .install-grid {
+          grid-template-columns: 1fr;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="logo">
+      <div class="container">
+        <a href="/">
+          <pre>
+   ▄█    █▄    ▄██   ▄      ▄███████▄    ▄████████  ▄████████    ▄█    █▄     ▄██████▄   ▄██████▄     ▄████████ ▄██   ▄ 
+  ███    ███   ███   ██▄   ███    ███   ███    ███ ███    ███   ███    ███   ███    ███ ███    ███   ███    ███ ███   ██▄
+  ███    ███   ███▄▄▄███   ███    ███   ███    ███ ███    █▀    ███    ███   ███    ███ ███    ███   ███    █▀  ███▄▄▄███
+ ▄███▄▄▄▄███▄▄ ▀▀▀▀▀▀███   ███    ███  ▄███▄▄▄▄██▀ ███         ▄███▄▄▄▄███▄▄ ███    ███ ███    ███   ███        ▀▀▀▀▀▀███
+▀▀███▀▀▀▀███▀  ▄██   ███ ▀█████████▀  ▀▀███▀▀▀▀▀   ███        ▀▀███▀▀▀▀███▀  ███    ███ ███    ███ ▀███████████ ▄██   ███
+  ███    ███   ███   ███   ███        ▀███████████ ███    █▄    ███    ███   ███    ███ ███    ███          ███ ███   ███
+  ███    ███   ███   ███   ███          ███    ███ ███    ███   ███    ███   ███    ███ ███    ███    ▄█    ███ ███   ███
+  ███    █▀     ▀█████▀   ▄████▀        ███    ███ ████████▀    ███    █▀     ▀██████▀   ▀██████▀   ▄████████▀   ▀█████▀ 
+                                        ███    ███                                                                        
+                </pre
+          >
+        </a>
+      </div>
+    </div>
+
+    <header>
+      <div class="container">
+        <h1>
+          Smart Browser Router for <a href="https://hyprland.org/">Hyprland</a>
+        </h1>
+      </div>
+    </header>
+
+    <nav>
+      <div class="container">
+        <div class="nav-buttons">
+          <a href="https://github.com/filipechagas/hyprchoosy" class="button">
+            <svg viewBox="0 0 24 24" fill="currentColor">
+              <path
+                d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"
+              />
+            </svg>
+            <span>GitHub</span>
+          </a>
+          <a
+            href="https://github.com/filipechagas/hyprchoosy/issues"
+            class="button"
+          >
+            <svg
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+            >
+              <circle cx="12" cy="12" r="10"></circle>
+              <line x1="12" y1="16" x2="12" y2="12"></line>
+              <line x1="12" y1="8" x2="12.01" y2="8"></line>
+            </svg>
+            <span>Issues</span>
+          </a>
+        </div>
+      </div>
+    </nav>
+
+    <main>
+      <div class="container">
+        <section>
+          <h2>What is hyprchoosy?</h2>
+          <p class="lead">
+            <strong>hyprchoosy</strong> routes URLs to different browsers based
+            on the originating application or URL hostname. It's a smart browser
+            selector for Hyprland that gives you fine-grained control over which
+            browser opens which links.
+          </p>
+          <div class="motivation">
+            After switching to <a href="https://omarchy.org/">Omarchy</a>, I
+            needed a <a href="https://choosy.app/">Choosy</a> replacement. So I
+            built it.
+          </div>
+        </section>
+
+        <section>
+          <h2>Features</h2>
+          <div class="features">
+            <div class="feature">
+              <strong>Client-based routing</strong>
+              <p>Open links from Slack in Chrome, Discord in Firefox, etc.</p>
+            </div>
+            <div class="feature">
+              <strong>URL-based routing</strong>
+              <p>Route specific domains to specific browsers</p>
+            </div>
+            <div class="feature">
+              <strong>Smart detection</strong>
+              <p>Automatically detects originating application</p>
+            </div>
+            <div class="feature">
+              <strong>Priority system</strong>
+              <p>Client rules take precedence over URL rules</p>
+            </div>
+            <div class="feature">
+              <strong>XDG compliant</strong>
+              <p>Respects standard config locations</p>
+            </div>
+            <div class="feature">
+              <strong>Lightweight</strong>
+              <p>Fast Rust binary with minimal dependencies</p>
+            </div>
+          </div>
+        </section>
+
+        <section>
+          <h2>Installation</h2>
+
+          <h3>Binary Release</h3>
+          <pre><code>wget https://github.com/filipechagas/hyprchoosy/releases/latest/download/hyprchoosy-amd64.tar.gz
+tar xzf hyprchoosy-amd64.tar.gz
+sudo mv hyprchoosy /usr/local/bin/</code></pre>
+
+          <h3>Debian/Ubuntu</h3>
+          <pre><code>wget https://github.com/filipechagas/hyprchoosy/releases/latest/download/hyprchoosy_0.1.0_amd64.deb
+sudo dpkg -i hyprchoosy_0.1.0_amd64.deb</code></pre>
+
+          <h3>Arch Linux</h3>
+          <pre><code>wget https://github.com/filipechagas/hyprchoosy/releases/latest/download/hyprchoosy-0.1.0-1-x86_64.pkg.tar.zst
+sudo pacman -U hyprchoosy-0.1.0-1-x86_64.pkg.tar.zst</code></pre>
+
+          <h3>From Source</h3>
+          <pre><code>git clone https://github.com/filipechagas/hyprchoosy
+cd hyprchoosy
+cargo install --path .</code></pre>
+        </section>
+
+        <section>
+          <h2>Configuration</h2>
+          <p>Create <code>~/.config/hyprchoosy/config.toml</code>:</p>
+          <pre><code>[default]
+browser = "firefox"
+
+# Route links from Slack to Chrome
+[work]
+browser = "google-chrome-stable"
+clients = ["slack"]
+
+# Route GitHub to Firefox
+[dev]
+browser = "firefox"
+url = ["github.com", "gitlab.com"]
+
+# Route social media to Brave
+[social]
+browser = "brave"
+url = ["twitter.com", "reddit.com", "youtube.com"]</code></pre>
+        </section>
+
+        <section>
+          <h2>Setup</h2>
+
+          <h3>1. Create Desktop Entry</h3>
+          <p>
+            Create <code>~/.local/share/applications/hyprchoosy.desktop</code>:
+          </p>
+          <pre><code>[Desktop Entry]
+Version=1.0
+Name=Hyprchoosy
+Comment=Smart browser router for Hyprland
+Exec=/usr/local/bin/hyprchoosy %u
+Terminal=false
+Type=Application
+MimeType=x-scheme-handler/http;x-scheme-handler/https;text/html;
+Categories=Network;
+NoDisplay=true</code></pre>
+
+          <p>Then update the desktop database:</p>
+          <code class="command"
+            >update-desktop-database ~/.local/share/applications/</code
+          >
+
+          <h3>2. Set as Default Browser</h3>
+          <p>Set hyprchoosy as your default URL handler:</p>
+          <code class="command"
+            >xdg-settings set default-web-browser hyprchoosy.desktop</code
+          >
+        </section>
+
+        <section>
+          <h2>How It Works</h2>
+          <div class="steps">
+            <ol>
+              <li>
+                <strong>Process detection</strong> — Walks up the process tree
+                to find the originating application
+              </li>
+              <li>
+                <strong>Client matching</strong> — Checks if the client matches
+                any configured rules
+              </li>
+              <li>
+                <strong>URL matching</strong> — If no client match, checks the
+                URL hostname
+              </li>
+              <li>
+                <strong>Default fallback</strong> — Uses default browser if no
+                rules match
+              </li>
+              <li>
+                <strong>Launch</strong> — Spawns the selected browser detached
+                from the current process
+              </li>
+            </ol>
+          </div>
+
+          <h3>Matching Rules</h3>
+          <ul>
+            <li>
+              <strong>Client matching:</strong> Partial match, case-insensitive
+              (e.g., <code>clients = ["slack"]</code> matches "slack-desktop")
+            </li>
+            <li>
+              <strong>URL matching:</strong> Exact domain or subdomain (e.g.,
+              <code>url = ["github.com"]</code> matches "github.com" and
+              "*.github.com")
+            </li>
+            <li>
+              <strong>Priority:</strong> Client rules → URL rules → Default
+              browser
+            </li>
+          </ul>
+        </section>
+      </div>
+    </main>
+
+    <footer>
+      <div class="container">
+        <p>Built for Hyprland users | MIT License</p>
+        <div class="footer-links">
+          <a href="https://github.com/filipechagas/hyprchoosy">GitHub</a> ·
+          <a href="https://github.com/filipechagas/hyprchoosy/releases"
+            >Releases</a
+          >
+          ·
+          <a href="https://github.com/filipechagas/hyprchoosy/issues">Issues</a>
+          ·
+          <a
+            href="https://github.com/filipechagas/hyprchoosy/blob/main/CHANGELOG.md"
+            >Changelog</a
+          >
+        </div>
+      </div>
+    </footer>
+  </body>
+</html>
