@@ -247,17 +247,50 @@
       }
 
       /* Code Blocks */
+      .code-block {
+        position: relative;
+        margin: 1rem 0;
+      }
+
       pre {
         background: rgba(0, 0, 0, 0.3);
         color: var(--accent-green);
         padding: 1.5rem;
+        padding-top: 2.5rem;
         overflow-x: auto;
-        margin: 1rem 0;
+        margin: 0;
         border: 1px solid rgba(155, 180, 255, 0.2);
         border-radius: 4px;
         font-family: "Consolas", "Monaco", "Courier New", monospace;
         font-size: 0.9rem;
         line-height: 1.6;
+      }
+
+      .copy-button {
+        position: absolute;
+        top: 0.5rem;
+        right: 0.5rem;
+        background: var(--button-blue);
+        color: var(--bg-dark);
+        border: none;
+        padding: 0.4rem 0.8rem;
+        border-radius: 4px;
+        cursor: pointer;
+        font-size: 0.75rem;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.03em;
+        transition: all 0.2s ease;
+        opacity: 0.9;
+      }
+
+      .copy-button:hover {
+        opacity: 1;
+        background: var(--button-hover);
+      }
+
+      .copy-button.copied {
+        background: var(--accent-green);
       }
 
       code {
@@ -632,6 +665,54 @@ NoDisplay=true</code></pre>
         </div>
       </div>
     </footer>
+
+    <script>
+      // Wrap all pre elements with copy buttons
+      document.addEventListener('DOMContentLoaded', function() {
+        const preElements = document.querySelectorAll('pre');
+        
+        preElements.forEach(function(pre) {
+          // Skip if already wrapped
+          if (pre.parentElement.classList.contains('code-block')) return;
+          
+          // Create wrapper
+          const wrapper = document.createElement('div');
+          wrapper.className = 'code-block';
+          
+          // Create copy button
+          const button = document.createElement('button');
+          button.className = 'copy-button';
+          button.textContent = 'Copy';
+          button.setAttribute('aria-label', 'Copy code to clipboard');
+          
+          // Add click handler
+          button.addEventListener('click', function() {
+            const code = pre.querySelector('code') || pre;
+            const text = code.textContent;
+            
+            navigator.clipboard.writeText(text).then(function() {
+              button.textContent = 'Copied!';
+              button.classList.add('copied');
+              
+              setTimeout(function() {
+                button.textContent = 'Copy';
+                button.classList.remove('copied');
+              }, 2000);
+            }).catch(function(err) {
+              console.error('Failed to copy:', err);
+              button.textContent = 'Failed';
+              setTimeout(function() {
+                button.textContent = 'Copy';
+              }, 2000);
+            });
+          });
+          
+          // Wrap pre element
+          pre.parentNode.insertBefore(wrapper, pre);
+          wrapper.appendChild(button);
+          wrapper.appendChild(pre);
+        });
+      });
+    </script>
   </body>
 </html>
-<!-- Updated: Fri Nov 21 10:51:14 AM -03 2025 -->
