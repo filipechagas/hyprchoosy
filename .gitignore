@@ -14,3 +14,4 @@ target/
 
 # Release artifacts
 release/
+public/
