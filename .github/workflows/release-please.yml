@@ -3,7 +3,7 @@ name: Release Please
 on:
   push:
     branches:
-      - main
+      - master
 
 permissions:
   contents: write
@@ -21,3 +21,11 @@ jobs:
         with:
           release-type: rust
           package-name: hyprchoosy
+  
+  trigger-build:
+    needs: release-please
+    if: ${{ needs.release-please.outputs.release_created }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Trigger build workflow
+        run: echo "Release ${{ needs.release-please.outputs.tag_name }} created!"
