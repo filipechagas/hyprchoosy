@@ -96,31 +96,7 @@ clients = ["discord", "telegram"]
 url = ["localhost", "127.0.0.1"]
 ```
 
-### 2. Set as default browser
-
-Set hyprchoosy as your default URL handler in Hyprland:
-
-```bash
-xdg-settings set default-web-browser hyprchoosy.desktop
-```
-
-Or create `~/.config/mimeapps.list`:
-
-```ini
-[Default Applications]
-x-scheme-handler/http=hyprchoosy.desktop
-x-scheme-handler/https=hyprchoosy.desktop
-x-scheme-handler/chrome=hyprchoosy.desktop
-text/html=hyprchoosy.desktop
-application/x-extension-htm=hyprchoosy.desktop
-application/x-extension-html=hyprchoosy.desktop
-application/x-extension-shtml=hyprchoosy.desktop
-application/xhtml+xml=hyprchoosy.desktop
-application/x-extension-xhtml=hyprchoosy.desktop
-application/x-extension-xht=hyprchoosy.desktop
-```
-
-### 3. Create desktop entry
+### 2. Create desktop entry
 
 Create `~/.local/share/applications/hyprchoosy.desktop`:
 
@@ -141,6 +117,37 @@ Then update the desktop database:
 
 ```bash
 update-desktop-database ~/.local/share/applications/
+```
+
+### 3. Set as default browser
+
+Try setting hyprchoosy as your default URL handler:
+
+```bash
+xdg-settings set default-web-browser hyprchoosy.desktop
+```
+
+**If `xdg-settings` doesn't work** (which is common), manually edit `~/.config/mimeapps.list`:
+
+Find and replace these lines:
+```ini
+text/html=chromium.desktop
+x-scheme-handler/http=chromium.desktop
+x-scheme-handler/https=chromium.desktop
+```
+
+With:
+```ini
+text/html=hyprchoosy.desktop
+x-scheme-handler/http=hyprchoosy.desktop
+x-scheme-handler/https=hyprchoosy.desktop
+```
+
+Or use these commands:
+```bash
+sed -i 's/text\/html=.*\.desktop/text\/html=hyprchoosy.desktop/' ~/.config/mimeapps.list
+sed -i 's/x-scheme-handler\/http=.*\.desktop/x-scheme-handler\/http=hyprchoosy.desktop/' ~/.config/mimeapps.list
+sed -i 's/x-scheme-handler\/https=.*\.desktop/x-scheme-handler\/https=hyprchoosy.desktop/' ~/.config/mimeapps.list
 ```
 
 ## 📖 Usage
