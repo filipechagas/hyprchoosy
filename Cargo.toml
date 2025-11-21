@@ -10,6 +10,14 @@ keywords = ["hyprland", "browser", "url", "launcher"]
 categories = ["command-line-utilities"]
 readme = "README.md"
 
+[lib]
+name = "hyprchoosy"
+path = "src/lib.rs"
+
+[[bin]]
+name = "hyprchoosy"
+path = "src/main.rs"
+
 [dependencies]
 serde = { version = "1.0", features = ["derive"] }
 toml = "0.8"
