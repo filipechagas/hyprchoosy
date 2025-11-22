@@ -74,15 +74,23 @@
         text-decoration: none;
       }
 
-      .logo pre {
-        font-family: monospace;
-        font-size: clamp(0.4rem, 1.3vw, 0.85rem);
-        line-height: 1.1;
-        overflow-x: auto;
-        white-space: pre;
-        color: var(--accent-green);
-        font-weight: bold;
+      .logo img {
+        display: block;
+        margin: 0 auto;
+        width: 100%;
+        max-width: 1484px;
+        height: auto;
       }
+
+      .logo > div {
+        display: inline-block;
+        background: rgba(0, 0, 0, 0.3);
+        border: 1px solid rgba(155, 180, 255, 0.2);
+        border-radius: 4px;
+        padding: 2rem;
+      }
+
+
 
       /* Header */
       header {
@@ -386,8 +394,8 @@
 
       /* Responsive */
       @media (max-width: 768px) {
-        .logo pre {
-          font-size: 0.35rem;
+        .logo img {
+          max-width: 100%;
         }
 
         h1 {
@@ -417,18 +425,9 @@
     <div class="logo">
       <div class="container">
         <a href="/">
-          <pre>
-   ▄█    █▄    ▄██   ▄      ▄███████▄    ▄████████  ▄████████    ▄█    █▄     ▄██████▄   ▄██████▄     ▄████████ ▄██   ▄ 
-  ███    ███   ███   ██▄   ███    ███   ███    ███ ███    ███   ███    ███   ███    ███ ███    ███   ███    ███ ███   ██▄
-  ███    ███   ███▄▄▄███   ███    ███   ███    ███ ███    █▀    ███    ███   ███    ███ ███    ███   ███    █▀  ███▄▄▄███
- ▄███▄▄▄▄███▄▄ ▀▀▀▀▀▀███   ███    ███  ▄███▄▄▄▄██▀ ███         ▄███▄▄▄▄███▄▄ ███    ███ ███    ███   ███        ▀▀▀▀▀▀███
-▀▀███▀▀▀▀███▀  ▄██   ███ ▀█████████▀  ▀▀███▀▀▀▀▀   ███        ▀▀███▀▀▀▀███▀  ███    ███ ███    ███ ▀███████████ ▄██   ███
-  ███    ███   ███   ███   ███        ▀███████████ ███    █▄    ███    ███   ███    ███ ███    ███          ███ ███   ███
-  ███    ███   ███   ███   ███          ███    ███ ███    ███   ███    ███   ███    ███ ███    ███    ▄█    ███ ███   ███
-  ███    █▀     ▀█████▀   ▄████▀        ███    ███ ████████▀    ███    █▀     ▀██████▀   ▀██████▀   ▄████████▀   ▀█████▀ 
-                                        ███    ███                                                                        
-                </pre
-          >
+          <div>
+            <img src="banner.png" alt="hyprchoosy" style="width: 100%; max-width: 3904px; height: auto;">
+          </div>
         </a>
       </div>
     </div>
