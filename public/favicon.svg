@@ -1,0 +1,22 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" shape-rendering="crispEdges">
+  <rect width="256" height="256" fill="#1F2430"/>
+
+  <!-- Pixel grid size: 16x16 units. Each "pixel" = 12x12 with 4px gutters -->
+  <g fill="#C0DD6D">
+    <!-- H (left), 6x10 pixel block area starting at (32,44) -->
+    <!-- Left vertical -->
+    <rect x="32" y="44" width="24" height="168"/>
+    <!-- Right vertical -->
+    <rect x="104" y="44" width="24" height="168"/>
+    <!-- Middle bar -->
+    <rect x="56" y="116" width="48" height="24"/>
+
+    <!-- c (right), square-ish open shape matching your type, placed at (148,72) -->
+    <!-- Top bar -->
+    <rect x="148" y="72" width="76" height="24"/>
+    <!-- Bottom bar -->
+    <rect x="148" y="164" width="76" height="24"/>
+    <!-- Left bar -->
+    <rect x="148" y="96" width="24" height="68"/>
+  </g>
+</svg>

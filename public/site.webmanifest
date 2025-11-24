@@ -1,0 +1,20 @@
+{
+  "name": "hyprchoosy",
+  "short_name": "hyprchoosy",
+  "description": "Smart Browser Router for Hyprland",
+  "icons": [
+    {
+      "src": "/favicon-192.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "/favicon-512.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ],
+  "theme_color": "#2b2d3a",
+  "background_color": "#2b2d3a",
+  "display": "standalone"
+}
