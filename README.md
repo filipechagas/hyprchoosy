@@ -8,7 +8,9 @@
   Route URLs to different browsers based on the originating application or URL hostname.
 </p>
 
-After switching to [Omarchy](https://omarchy.org/), I needed a [Choosy](https://choosy.app/) replacement. So I built it.
+<p align="center">
+  After switching to [Omarchy](https://omarchy.org/), I needed a [Choosy](https://choosy.app/) replacement. So I built it.
+</p>
 
 ---
 
@@ -29,6 +31,7 @@ After switching to [Omarchy](https://omarchy.org/), I needed a [Choosy](https://
 Download the latest release for your architecture from [GitHub Releases](https://github.com/filipechagas/hyprchoosy/releases):
 
 **x86_64 (Intel/AMD) - Standard:**
+
 ```bash
 wget https://github.com/filipechagas/hyprchoosy/releases/latest/download/hyprchoosy-amd64.tar.gz
 tar xzf hyprchoosy-amd64.tar.gz
@@ -36,6 +39,7 @@ sudo mv hyprchoosy /usr/local/bin/
 ```
 
 **x86_64 (Intel/AMD) - Static (musl):**
+
 ```bash
 wget https://github.com/filipechagas/hyprchoosy/releases/latest/download/hyprchoosy-amd64-musl.tar.gz
 tar xzf hyprchoosy-amd64-musl.tar.gz
@@ -43,6 +47,7 @@ sudo mv hyprchoosy /usr/local/bin/
 ```
 
 **ARM64 - Standard:**
+
 ```bash
 wget https://github.com/filipechagas/hyprchoosy/releases/latest/download/hyprchoosy-arm64.tar.gz
 tar xzf hyprchoosy-arm64.tar.gz
@@ -50,6 +55,7 @@ sudo mv hyprchoosy /usr/local/bin/
 ```
 
 **ARM64 - Static (musl):**
+
 ```bash
 wget https://github.com/filipechagas/hyprchoosy/releases/latest/download/hyprchoosy-arm64-musl.tar.gz
 tar xzf hyprchoosy-arm64-musl.tar.gz
@@ -130,6 +136,7 @@ xdg-settings set default-web-browser hyprchoosy.desktop
 **If `xdg-settings` doesn't work** (which is common), manually edit `~/.config/mimeapps.list`:
 
 Find and replace these lines:
+
 ```ini
 text/html=chromium.desktop
 x-scheme-handler/http=chromium.desktop
@@ -137,6 +144,7 @@ x-scheme-handler/https=chromium.desktop
 ```
 
 With:
+
 ```ini
 text/html=hyprchoosy.desktop
 x-scheme-handler/http=hyprchoosy.desktop
@@ -144,6 +152,7 @@ x-scheme-handler/https=hyprchoosy.desktop
 ```
 
 Or use these commands:
+
 ```bash
 sed -i 's/text\/html=.*\.desktop/text\/html=hyprchoosy.desktop/' ~/.config/mimeapps.list
 sed -i 's/x-scheme-handler\/http=.*\.desktop/x-scheme-handler\/http=hyprchoosy.desktop/' ~/.config/mimeapps.list
@@ -210,11 +219,13 @@ HYPRCHOOSY_CONFIG=~/my-config.toml hyprchoosy https://example.com
 ### Building
 
 Normal build (no logging):
+
 ```bash
 cargo build --release
 ```
 
 Debug build (with logging):
+
 ```bash
 cargo build --release --features debug
 # Or use the convenience script
@@ -262,13 +273,7 @@ MIT License - see [LICENSE](LICENSE) file for details.
 
 ## 🙏 Acknowledgments
 
-Inspired by [Browserpass](https://github.com/browserpass/browserpass-extension) and [Finicky](https://github.com/johnste/finicky).
-
-## 📝 Alternatives
-
-- [xdg-utils](https://www.freedesktop.org/wiki/Software/xdg-utils/) - Basic XDG utilities
-- [mimeo](https://xyne.archlinux.ca/projects/mimeo/) - More general MIME type handler
-- [handlr](https://github.com/chmln/handlr) - Modern XDG utils replacement
+Inspired by [Choosy](https://choosy.app/) and [Velja](https://sindresorhus.com/velja).
 
 ---
 
