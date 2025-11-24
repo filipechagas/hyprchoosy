@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.3.2](https://github.com/filipechagas/hyprchoosy/compare/v0.3.1...v0.3.2) (2025-11-24)
+
+
+### Bug Fixes
+
+* Fix release creation ([d7f9f96](https://github.com/filipechagas/hyprchoosy/commit/d7f9f9642687126dd80328e4c710edcdf7598232))
+
 ## [0.3.1](https://github.com/filipechagas/hyprchoosy/compare/v0.3.0...v0.3.1) (2025-11-24)
 
 
