@@ -115,10 +115,83 @@ pub fn url_host(u: &str) -> Result<String> {
         .unwrap_or_default())
 }
 
-// Walk up parent processes to find the originating client command name
-pub fn detect_client() -> Option<String> {
+// Detect client from environment variable (for systemd/DBus launched apps)
+fn detect_from_env() -> Option<String> {
+    // Check GIO_LAUNCHED_DESKTOP_FILE (set by gio/xdg-open)
+    if let Ok(desktop_file) = env::var("GIO_LAUNCHED_DESKTOP_FILE") {
+        #[cfg(feature = "debug")]
+        debug!("Found GIO_LAUNCHED_DESKTOP_FILE: {}", desktop_file);
+        
+        // Extract app name from path like /usr/share/applications/thunderbird.desktop
+        if let Some(filename) = desktop_file.rsplit('/').next() {
+            let app_name = filename.trim_end_matches(".desktop");
+            
+            // Skip if it's hyprchoosy itself (we're looking for the originating app)
+            if app_name == "hyprchoosy" {
+                #[cfg(feature = "debug")]
+                debug!("Skipping hyprchoosy.desktop (looking for originating app)");
+                return None;
+            }
+            
+            #[cfg(feature = "debug")]
+            info!("Detected client from env: '{}'", app_name);
+            return Some(app_name.to_string());
+        }
+    }
+    
+    None
+}
+
+// Detect client from active Hyprland window
+fn detect_from_hyprland() -> Option<String> {
     #[cfg(feature = "debug")]
-    debug!("Starting client detection...");
+    debug!("Attempting to detect client from Hyprland active window...");
+    
+    let output = Command::new("hyprctl")
+        .args(["activewindow", "-j"])
+        .output()
+        .ok()?;
+    
+    if !output.status.success() {
+        #[cfg(feature = "debug")]
+        debug!("hyprctl command failed");
+        return None;
+    }
+    
+    let json = String::from_utf8(output.stdout).ok()?;
+    
+    #[cfg(feature = "debug")]
+    debug!("Hyprctl output: {}", json);
+    
+    // Simple JSON parsing to extract class field
+    // Format: {"class": "thunderbird", ...}
+    for line in json.lines() {
+        if line.contains("\"class\"") {
+            if let Some(class_value) = line.split(':').nth(1) {
+                let class = class_value
+                    .trim()
+                    .trim_matches(',')
+                    .trim_matches('"')
+                    .to_lowercase();
+                
+                if !class.is_empty() && class != "unknown" {
+                    #[cfg(feature = "debug")]
+                    info!("Detected client from Hyprland window: '{}'", class);
+                    return Some(class);
+                }
+            }
+        }
+    }
+    
+    #[cfg(feature = "debug")]
+    debug!("Could not extract class from Hyprland window");
+    None
+}
+
+// Walk up parent processes to find the originating client command name
+fn detect_from_process_tree() -> Option<String> {
+    #[cfg(feature = "debug")]
+    debug!("Attempting to detect client from process tree...");
     
     let mut sys = System::new_all();
     sys.refresh_processes();
@@ -181,7 +254,7 @@ pub fn detect_client() -> Option<String> {
         
         if !is_skipped && !name.is_empty() {
             #[cfg(feature = "debug")]
-            info!("Detected client: '{}'", name);
+            info!("Detected client from process tree: '{}'", name);
             return Some(name);
         }
 
@@ -190,7 +263,32 @@ pub fn detect_client() -> Option<String> {
     }
     
     #[cfg(feature = "debug")]
-    warn!("Client detection failed after {} steps", steps);
+    warn!("Client detection from process tree failed after {} steps", steps);
+    None
+}
+
+// Try multiple methods to detect the originating client
+pub fn detect_client() -> Option<String> {
+    #[cfg(feature = "debug")]
+    info!("Starting client detection...");
+    
+    // Method 1: Check active Hyprland window (most reliable for GUI apps)
+    if let Some(client) = detect_from_hyprland() {
+        return Some(client);
+    }
+    
+    // Method 2: Check environment variables
+    if let Some(client) = detect_from_env() {
+        return Some(client);
+    }
+    
+    // Method 3: Check process tree (fallback)
+    if let Some(client) = detect_from_process_tree() {
+        return Some(client);
+    }
+    
+    #[cfg(feature = "debug")]
+    warn!("All client detection methods failed");
     None
 }
 
