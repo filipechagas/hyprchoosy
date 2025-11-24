@@ -11,7 +11,7 @@ permissions:
   pull-requests: write
 
 jobs:
-  # Release Please - Creates/updates release PR and tags (but skips GitHub release creation)
+  # Release Please - Creates/updates release PR and creates tags and releases
   release-please:
     runs-on: ubuntu-latest
     if: github.event_name == 'push' && github.ref == 'refs/heads/master'
@@ -23,7 +23,6 @@ jobs:
         id: release
         with:
           release-type: rust
-          skip-github-release: true
 
   # Run tests and checks
   test:
@@ -242,9 +241,9 @@ jobs:
             *.rpm
             *.pkg.tar.zst
 
-  # Create GitHub release with all assets after builds complete
-  create-release:
-    name: Create GitHub Release
+  # Update GitHub release with all assets after builds complete
+  update-release:
+    name: Update GitHub Release with Assets
     runs-on: ubuntu-latest
     needs: [release-please, build-binaries, build-packages]
     if: needs.release-please.outputs.release_created == 'true'
@@ -257,7 +256,7 @@ jobs:
       - name: Display structure
         run: ls -R
 
-      - name: Create release with assets
+      - name: Upload assets to release
         uses: softprops/action-gh-release@v1
         with:
           tag_name: ${{ needs.release-please.outputs.tag_name }}
@@ -266,9 +265,6 @@ jobs:
             hyprchoosy-*/*.deb
             hyprchoosy-*/*.rpm
             hyprchoosy-*/*.pkg.tar.zst
-          draft: false
-          prerelease: false
-          generate_release_notes: true
           fail_on_unmatched_files: false
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
