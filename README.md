@@ -21,7 +21,9 @@ After switching to [Omarchy](https://omarchy.org/), I needed a [Choosy](https://
 
 ### Binary Releases
 
-Download the latest release for your architecture from [GitHub Releases](https://github.com/filipechagas/hyprchoosy/releases):
+Download the latest release for your architecture from [GitHub Releases](https://github.com/filipechagas/hyprchoosy/releases/latest).
+
+> **Note:** DEB, RPM, and Arch packages are also available on the releases page.
 
 **x86_64 (Intel/AMD) - Standard:**
 
