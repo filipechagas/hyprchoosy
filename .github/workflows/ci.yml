@@ -163,10 +163,13 @@ jobs:
           # Get version from Cargo.toml
           VERSION=$(grep -m1 '^version' Cargo.toml | cut -d'"' -f2)
           
+          # Setup rpmbuild directories
           mkdir -p ~/rpmbuild/{BUILD,RPMS,SOURCES,SPECS,SRPMS}
-          mkdir -p ~/rpmbuild/BUILDROOT/hyprchoosy-${VERSION}-1.x86_64/usr/bin
-          cp hyprchoosy ~/rpmbuild/BUILDROOT/hyprchoosy-${VERSION}-1.x86_64/usr/bin/
-          chmod +x ~/rpmbuild/BUILDROOT/hyprchoosy-${VERSION}-1.x86_64/usr/bin/hyprchoosy
+          
+          # Copy binary to a temporary location
+          mkdir -p /tmp/hyprchoosy-build
+          cp hyprchoosy /tmp/hyprchoosy-build/
+          chmod +x /tmp/hyprchoosy-build/hyprchoosy
           
           CURRENT_DATE=$(date "+%a %b %d %Y")
           cat > ~/rpmbuild/SPECS/hyprchoosy.spec << EOF
@@ -182,7 +185,8 @@ jobs:
           Route links to different browsers by client and host for Hyprland
 
           %install
-          # Files already in BUILDROOT
+          mkdir -p %{buildroot}/usr/bin
+          install -m 755 /tmp/hyprchoosy-build/hyprchoosy %{buildroot}/usr/bin/hyprchoosy
 
           %files
           /usr/bin/hyprchoosy
