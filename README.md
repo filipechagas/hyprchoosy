@@ -1,17 +1,10 @@
 # hyprchoosy
 
-<p align="center">
-  <strong>Smart browser router for Hyprland</strong>
-</p>
+<strong>Smart browser router for Hyprland</strong>
 
-<p align="center">
-  Route URLs to different browsers based on the originating application or URL hostname.
-</p>
+Route URLs to different browsers based on the originating application or URL hostname.
 
-<p align="center">
-  After switching to [Omarchy](https://omarchy.org/), I needed a [Choosy](https://choosy.app/) replacement. So I built it.
-</p>
-
+After switching to [Omarchy](https://omarchy.org/), I needed a [Choosy](https://choosy.app/) replacement. So I built it.
 ---
 
 ## ✨ Features
