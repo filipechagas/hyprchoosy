@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.3.1](https://github.com/filipechagas/hyprchoosy/compare/v0.3.0...v0.3.1) (2025-11-24)
+
+
+### Bug Fixes
+
+* Fix RPM package build by properly handling install phase ([5ffad33](https://github.com/filipechagas/hyprchoosy/commit/5ffad33c74eae2131865dc7ada9d32ee7ceb6d45))
+
 ## [0.3.0](https://github.com/filipechagas/hyprchoosy/compare/v0.2.0...v0.3.0) (2025-11-24)
 
 
