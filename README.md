@@ -209,9 +209,19 @@ HYPRCHOOSY_CONFIG=~/my-config.toml hyprchoosy https://example.com
 
 ### Building
 
+Normal build (no logging):
 ```bash
 cargo build --release
 ```
+
+Debug build (with logging):
+```bash
+cargo build --release --features debug
+# Or use the convenience script
+./build-debug.sh
+```
+
+See [DEBUG.md](DEBUG.md) for details on using debug logging to troubleshoot routing issues.
 
 ### Testing
 

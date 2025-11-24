@@ -7,6 +7,13 @@ use std::process::Command;
 use sysinfo::{Pid, System};
 use url::Url;
 
+#[cfg(feature = "debug")]
+use log::{debug, info, warn};
+#[cfg(feature = "debug")]
+use simplelog::{CombinedLogger, ConfigBuilder, LevelFilter, WriteLogger};
+#[cfg(feature = "debug")]
+use std::fs::File;
+
 #[derive(Debug, Deserialize)]
 pub struct Config {
     #[serde(default)]
@@ -23,6 +30,37 @@ pub struct DefaultSection {
 
 pub fn default_browser() -> String {
     "firefox".to_string()
+}
+
+#[cfg(feature = "debug")]
+pub fn init_logger() -> Result<()> {
+    let log_dir = env::temp_dir().join("hyprchoosy");
+    std::fs::create_dir_all(&log_dir)
+        .with_context(|| format!("Failed to create log directory at {}", log_dir.display()))?;
+    
+    let log_file = log_dir.join("hyprchoosy.log");
+    
+    let config = ConfigBuilder::new()
+        .set_time_format_rfc3339()
+        .build();
+    
+    CombinedLogger::init(vec![WriteLogger::new(
+        LevelFilter::Debug,
+        config,
+        File::create(&log_file)
+            .with_context(|| format!("Failed to create log file at {}", log_file.display()))?,
+    )])
+    .with_context(|| "Failed to initialize logger")?;
+    
+    info!("=== Hyprchoosy Debug Session Started ===");
+    info!("Log file: {}", log_file.display());
+    Ok(())
+}
+
+#[cfg(not(feature = "debug"))]
+pub fn init_logger() -> Result<()> {
+    // No-op when debug feature is not enabled
+    Ok(())
 }
 
 #[derive(Debug, Deserialize, Clone)]
@@ -79,18 +117,47 @@ pub fn url_host(u: &str) -> Result<String> {
 
 // Walk up parent processes to find the originating client command name
 pub fn detect_client() -> Option<String> {
+    #[cfg(feature = "debug")]
+    debug!("Starting client detection...");
+    
     let mut sys = System::new_all();
     sys.refresh_processes();
 
     let mut pid = Pid::from_u32(std::process::id());
     let mut steps = 0usize;
+    
+    #[cfg(feature = "debug")]
+    debug!("Current PID: {}", pid);
 
     while steps < 16 {
-        let proc = sys.process(pid)?;
-        let ppid = proc.parent()?;
-        let parent = sys.process(ppid)?;
+        let proc = sys.process(pid);
+        if proc.is_none() {
+            #[cfg(feature = "debug")]
+            warn!("Could not find process for PID: {}", pid);
+            return None;
+        }
+        let proc = proc?;
+        
+        let ppid = proc.parent();
+        if ppid.is_none() {
+            #[cfg(feature = "debug")]
+            warn!("Process {} has no parent", pid);
+            return None;
+        }
+        let ppid = ppid?;
+        
+        let parent = sys.process(ppid);
+        if parent.is_none() {
+            #[cfg(feature = "debug")]
+            warn!("Could not find parent process for PPID: {}", ppid);
+            return None;
+        }
+        let parent = parent?;
 
         let name = parent.name().to_lowercase();
+        
+        #[cfg(feature = "debug")]
+        debug!("Step {}: PID {} -> PPID {} (name: '{}')", steps, pid, ppid, name);
 
         // Skip common wrappers
         let skip = [
@@ -107,13 +174,23 @@ pub fn detect_client() -> Option<String> {
             "xdg-desktop-portal-gtk",
             "xdg-desktop-portal-hyprland",
         ];
-        if !skip.iter().any(|s| name.contains(s)) && !name.is_empty() {
+        
+        let is_skipped = skip.iter().any(|s| name.contains(s));
+        #[cfg(feature = "debug")]
+        debug!("  Name '{}' is {} wrapper", name, if is_skipped { "a" } else { "NOT a" });
+        
+        if !is_skipped && !name.is_empty() {
+            #[cfg(feature = "debug")]
+            info!("Detected client: '{}'", name);
             return Some(name);
         }
 
         pid = ppid;
         steps += 1;
     }
+    
+    #[cfg(feature = "debug")]
+    warn!("Client detection failed after {} steps", steps);
     None
 }
 
@@ -121,28 +198,70 @@ pub fn match_client<'a>(
     client: &str,
     sections: &'a HashMap<String, RuleSection>,
 ) -> Option<&'a RuleSection> {
+    #[cfg(feature = "debug")]
+    debug!("Matching client: '{}'", client);
+    
     let c = client.to_lowercase();
-    sections.values().find(|sec| {
-        sec.clients
-            .iter()
-            .any(|needle| c.contains(&needle.to_lowercase()))
-    })
+    
+    #[cfg(feature = "debug")]
+    debug!("Available sections: {:?}", sections.keys().collect::<Vec<_>>());
+    
+    for (_section_name, sec) in sections.iter() {
+        #[cfg(feature = "debug")]
+        debug!("  Checking section '{}' with clients: {:?}", _section_name, sec.clients);
+        
+        for needle in &sec.clients {
+            let needle_lower = needle.to_lowercase();
+            if c.contains(&needle_lower) {
+                #[cfg(feature = "debug")]
+                info!("Client '{}' matched rule '{}' (pattern: '{}')", client, _section_name, needle);
+                return Some(sec);
+            }
+        }
+    }
+    
+    #[cfg(feature = "debug")]
+    debug!("No client match found for '{}'", client);
+    None
 }
 
 pub fn match_host<'a>(
     host: &str,
     sections: &'a HashMap<String, RuleSection>,
 ) -> Option<&'a RuleSection> {
+    #[cfg(feature = "debug")]
+    debug!("Matching host: '{}'", host);
+    
     let h = host.to_lowercase();
-    sections.values().find(|sec| {
-        sec.url.iter().any(|pat| {
+    
+    for (_section_name, sec) in sections.iter() {
+        #[cfg(feature = "debug")]
+        debug!("  Checking section '{}' with URL patterns: {:?}", _section_name, sec.url);
+        
+        for pat in &sec.url {
             let p = pat.to_lowercase();
-            h == p || h.ends_with(&format!(".{}", p))
-        })
-    })
+            let matches = h == p || h.ends_with(&format!(".{}", p));
+            
+            #[cfg(feature = "debug")]
+            debug!("    Pattern '{}' {} match host '{}'", pat, if matches { "DOES" } else { "does NOT" }, host);
+            
+            if matches {
+                #[cfg(feature = "debug")]
+                info!("Host '{}' matched rule '{}' (pattern: '{}')", host, _section_name, pat);
+                return Some(sec);
+            }
+        }
+    }
+    
+    #[cfg(feature = "debug")]
+    debug!("No host match found for '{}'", host);
+    None
 }
 
 pub fn launch(browser: &str, url: &str) -> Result<()> {
+    #[cfg(feature = "debug")]
+    info!("Launching browser: '{}' with URL: '{}'", browser, url);
+    
     #[cfg(unix)]
     {
         use std::os::unix::process::CommandExt;
@@ -158,15 +277,32 @@ pub fn launch(browser: &str, url: &str) -> Result<()> {
                 Ok(())
             });
         }
-        cmd.spawn()
-            .with_context(|| format!("Failed to spawn browser '{}'", browser))?;
+        match cmd.spawn() {
+            Ok(_) => {
+                #[cfg(feature = "debug")]
+                info!("Successfully spawned browser '{}'", browser);
+                Ok(())
+            }
+            Err(e) => {
+                #[cfg(feature = "debug")]
+                warn!("Failed to spawn browser '{}': {}", browser, e);
+                Err(e).with_context(|| format!("Failed to spawn browser '{}'", browser))
+            }
+        }
     }
     #[cfg(not(unix))]
     {
-        Command::new(browser)
-            .arg(url)
-            .spawn()
-            .with_context(|| format!("Failed to spawn browser '{}'", browser))?;
+        match Command::new(browser).arg(url).spawn() {
+            Ok(_) => {
+                #[cfg(feature = "debug")]
+                info!("Successfully spawned browser '{}'", browser);
+                Ok(())
+            }
+            Err(e) => {
+                #[cfg(feature = "debug")]
+                warn!("Failed to spawn browser '{}': {}", browser, e);
+                Err(e).with_context(|| format!("Failed to spawn browser '{}'", browser))
+            }
+        }
     }
-    Ok(())
 }

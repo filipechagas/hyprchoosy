@@ -26,6 +26,12 @@ sysinfo = "0.30"
 anyhow = "1.0"
 dirs = "5.0"
 libc = "0.2"
+log = { version = "0.4", optional = true }
+simplelog = { version = "0.12", optional = true }
+
+[features]
+default = []
+debug = ["log", "simplelog"]
 
 [profile.release]
 lto = true
