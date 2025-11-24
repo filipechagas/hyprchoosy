@@ -1,5 +1,17 @@
 # Changelog
 
+## [0.3.0](https://github.com/filipechagas/hyprchoosy/compare/v0.2.0...v0.3.0) (2025-11-24)
+
+
+### Features
+
+* Improve originator detection ([a92bd01](https://github.com/filipechagas/hyprchoosy/commit/a92bd013648a414d2e1ec3a84bbd9f631f909fe6))
+
+
+### Bug Fixes
+
+* Fix deb and rpm releases ([296dbcb](https://github.com/filipechagas/hyprchoosy/commit/296dbcb30dd2cacce100576f49c178d803dca383))
+
 ## [0.2.0](https://github.com/filipechagas/hyprchoosy/compare/v0.1.1...v0.2.0) (2025-11-21)
 
 
