@@ -85,6 +85,12 @@ jobs:
         with:
           name: hyprchoosy-amd64
 
+      - name: Extract and prepare binary
+        run: |
+          tar xzf hyprchoosy-amd64.tar.gz
+          mkdir -p target/release
+          cp hyprchoosy target/release/
+
       - name: Install cargo-deb
         run: cargo install cargo-deb
 
@@ -118,13 +124,14 @@ jobs:
       - name: Create RPM build structure
         run: |
           mkdir -p ~/rpmbuild/{BUILD,RPMS,SOURCES,SPECS,SRPMS}
-          mkdir -p package/usr/bin
-          cp hyprchoosy package/usr/bin/
-          chmod +x package/usr/bin/hyprchoosy
+          mkdir -p ~/rpmbuild/BUILDROOT/hyprchoosy-0.1.0-1.x86_64/usr/bin
+          cp hyprchoosy ~/rpmbuild/BUILDROOT/hyprchoosy-0.1.0-1.x86_64/usr/bin/
+          chmod +x ~/rpmbuild/BUILDROOT/hyprchoosy-0.1.0-1.x86_64/usr/bin/hyprchoosy
 
       - name: Create RPM spec file
         run: |
-          cat > ~/rpmbuild/SPECS/hyprchoosy.spec << 'EOF'
+          CURRENT_DATE=$(date "+%a %b %d %Y")
+          cat > ~/rpmbuild/SPECS/hyprchoosy.spec << EOF
           Name:           hyprchoosy
           Version:        0.1.0
           Release:        1%{?dist}
@@ -137,14 +144,13 @@ jobs:
           Route links to different browsers by client and host for Hyprland
 
           %install
-          mkdir -p %{buildroot}/usr/bin
-          cp %{_sourcedir}/../../../package/usr/bin/hyprchoosy %{buildroot}/usr/bin/
+          # Files already in BUILDROOT
 
           %files
           /usr/bin/hyprchoosy
 
           %changelog
-          * $(date "+%a %b %d %Y") Builder <builder@example.com> - 0.1.0-1
+          * $CURRENT_DATE Builder <builder@example.com> - 0.1.0-1
           - Initial package
           EOF
 
