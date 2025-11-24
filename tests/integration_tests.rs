@@ -32,10 +32,7 @@ fn test_url_host_with_path() {
 
 #[test]
 fn test_url_host_case_insensitive() {
-    assert_eq!(
-        parse_url_host("HTTPS://GITHUB.COM").unwrap(),
-        "github.com"
-    );
+    assert_eq!(parse_url_host("HTTPS://GITHUB.COM").unwrap(), "github.com");
     assert_eq!(parse_url_host("GitHub.COM").unwrap(), "github.com");
 }
 

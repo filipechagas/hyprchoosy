@@ -144,10 +144,7 @@ mod tests {
 
     #[test]
     fn test_parse_url_host_case_insensitive() {
-        assert_eq!(
-            parse_url_host("HTTPS://GITHUB.COM").unwrap(),
-            "github.com"
-        );
+        assert_eq!(parse_url_host("HTTPS://GITHUB.COM").unwrap(), "github.com");
         assert_eq!(parse_url_host("GitHub.COM").unwrap(), "github.com");
     }
 
