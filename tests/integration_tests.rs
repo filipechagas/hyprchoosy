@@ -1,45 +1,48 @@
-use hyprchoosy::{
-    config_path, match_client, match_host, url_host, xdg_config_home, Config, RuleSection,
-};
+use hyprchoosy::{match_client, match_host, parse_url_host, Config, RuleSection};
 use std::collections::HashMap;
-use std::path::PathBuf;
 
 #[test]
 fn test_url_host_with_scheme() {
-    assert_eq!(url_host("https://github.com").unwrap(), "github.com");
-    assert_eq!(url_host("http://example.com").unwrap(), "example.com");
+    assert_eq!(parse_url_host("https://github.com").unwrap(), "github.com");
+    assert_eq!(parse_url_host("http://example.com").unwrap(), "example.com");
     assert_eq!(
-        url_host("https://sub.example.com").unwrap(),
+        parse_url_host("https://sub.example.com").unwrap(),
         "sub.example.com"
     );
 }
 
 #[test]
 fn test_url_host_without_scheme() {
-    assert_eq!(url_host("github.com").unwrap(), "github.com");
-    assert_eq!(url_host("example.com").unwrap(), "example.com");
-    assert_eq!(url_host("sub.example.com").unwrap(), "sub.example.com");
+    assert_eq!(parse_url_host("github.com").unwrap(), "github.com");
+    assert_eq!(parse_url_host("example.com").unwrap(), "example.com");
+    assert_eq!(
+        parse_url_host("sub.example.com").unwrap(),
+        "sub.example.com"
+    );
 }
 
 #[test]
 fn test_url_host_with_path() {
     assert_eq!(
-        url_host("https://github.com/user/repo").unwrap(),
+        parse_url_host("https://github.com/user/repo").unwrap(),
         "github.com"
     );
-    assert_eq!(url_host("example.com/path").unwrap(), "example.com");
+    assert_eq!(parse_url_host("example.com/path").unwrap(), "example.com");
 }
 
 #[test]
 fn test_url_host_case_insensitive() {
-    assert_eq!(url_host("HTTPS://GITHUB.COM").unwrap(), "github.com");
-    assert_eq!(url_host("GitHub.COM").unwrap(), "github.com");
+    assert_eq!(
+        parse_url_host("HTTPS://GITHUB.COM").unwrap(),
+        "github.com"
+    );
+    assert_eq!(parse_url_host("GitHub.COM").unwrap(), "github.com");
 }
 
 #[test]
 fn test_url_host_invalid() {
-    assert!(url_host("not a url").is_err());
-    assert!(url_host("").is_err());
+    assert!(parse_url_host("not a url").is_err());
+    assert!(parse_url_host("").is_err());
 }
 
 #[test]
@@ -192,7 +195,6 @@ fn test_match_host_no_partial_match() {
         },
     );
 
-    // Should not match "notgithub.com" - must be exact or subdomain
     let result = match_host("notgithub.com", &sections);
     assert!(result.is_none());
 }
@@ -229,7 +231,7 @@ browser = "chrome"
 "#;
 
     let config: Config = toml::from_str(toml_str).unwrap();
-    assert_eq!(config.default.browser, "firefox"); // default value
+    assert_eq!(config.default.browser, "firefox");
 }
 
 #[test]
@@ -240,8 +242,6 @@ browser = "chrome"
 "#;
 
     let config: Config = toml::from_str(toml_str).unwrap();
-    // When no [default] section is present, defaults to empty string
-    // but the default_browser() function returns "firefox"
     assert_eq!(config.default.browser, "");
 }
 
@@ -256,22 +256,6 @@ browser = "chrome"
     let section = config.sections.get("section").unwrap();
     assert_eq!(section.clients.len(), 0);
     assert_eq!(section.url.len(), 0);
-}
-
-#[test]
-fn test_xdg_config_home_with_env() {
-    std::env::set_var("XDG_CONFIG_HOME", "/custom/config");
-    let path = xdg_config_home();
-    assert_eq!(path, PathBuf::from("/custom/config"));
-    std::env::remove_var("XDG_CONFIG_HOME");
-}
-
-#[test]
-fn test_config_path_with_override() {
-    std::env::set_var("HYPRCHOOSY_CONFIG", "/custom/config.toml");
-    let path = config_path();
-    assert_eq!(path, PathBuf::from("/custom/config.toml"));
-    std::env::remove_var("HYPRCHOOSY_CONFIG");
 }
 
 #[test]
